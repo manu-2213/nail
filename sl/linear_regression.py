@@ -18,6 +18,8 @@ class LinearRegression:
             )
         ones = np.ones_like(y)
         self.X: np.ndarray = np.concatenate([ones, X], axis=-1)
+        self.Z: np.ndarray | None = None # Orthogonalised X matrix
+        self.Z_betas: np.ndarray | None = None
         self.y: np.ndarray = y
         self.B = np.random.randn(self.X.shape[1], 1)
 
@@ -43,9 +45,38 @@ class LinearRegression:
         self.B = np.linalg.inv(self.X.T @ self.X) @ self.X.T @ self.y
         return self.B
 
-    def _by_successive_orthogonolisation(self, ):
-        pass
+    def _by_successive_orthogonolisation(self, return_orthogonalised: bool = False):
+        Z = self.X[:, 0].copy()
+        Z = np.expand_dims(Z, axis=-1)
+        R = np.identity(self.B.shape[0])
 
+        for j in range(1, self.X.shape[1]):
+            z = self.X[:, j].copy()
+            x = self.X[:, j]
+            
+            for k in range(j):
+                a = np.dot(Z[:, k], x) / np.dot(Z[:, k], Z[:, k])
+                R[k, j] = a
+                z -= a * Z[:, k]
+            z = np.expand_dims(z, axis=-1)
+            Z = np.concatenate([Z, z], axis=-1)
+
+        numerator = (Z.T @ self.y) 
+        denominator = np.diagonal(Z.T @ Z)[:, None]
+        self.Z_betas = numerator / denominator
+        self.Z = Z
+
+        if return_orthogonalised:
+            return self.Z_betas, self.Z
+
+        else:
+            self.B = np.linalg.inv(R) @ self.Z_betas
+            return self.B
+
+
+        
+
+            
     def _by_qr_decomposition(self, ):
         pass
 
