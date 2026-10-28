@@ -22,17 +22,17 @@ class LinearRegression:
         self.B = np.random.randn(self.X.shape[1], 1)
 
     def get_predictions(self, ):
-        return self._y_hat_
+        return self._y_hat
 
     def get_beta_var_cov_matrix(self, ):
         return np.linalg.inv(self.X.T @ self.X) * self._get_variance()
 
     def _get_variance(self, ):
-        sqd_err = np.sum((self.y - self._y_hat_)**2)
+        sqd_err = np.sum((self.y - self._y_hat)**2)
         return 1 / (self.X.shape[0] - self.B.shape[0]) * sqd_err
 
     @property
-    def _y_hat_(self, ):
+    def _y_hat(self, ):
         return self.X @ self.B
 
     def solve(self, method: str = "naive"):
