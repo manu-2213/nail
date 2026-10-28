@@ -21,6 +21,20 @@ class LinearRegression:
         self.y: np.ndarray = y
         self.B = np.random.randn(self.X.shape[1], 1)
 
+    def get_predictions(self, ):
+        return self._y_hat_
+
+    def get_beta_var_cov_matrix(self, ):
+        return np.linalg.inv(self.X.T @ self.X) * self._get_variance()
+
+    def _get_variance(self, ):
+        sqd_err = np.sum((self.y - self._y_hat_)**2)
+        return 1 / (self.X.shape[0] - self.B.shape[0]) * sqd_err
+
+    @property
+    def _y_hat_(self, ):
+        return self.X @ self.B
+
     def solve(self, method: str = "naive"):
         if method == "naive":
             return self._naive_solving()
@@ -28,4 +42,24 @@ class LinearRegression:
     def _naive_solving(self,):
         self.B = np.linalg.inv(self.X.T @ self.X) @ self.X.T @ self.y
         return self.B
+
+    def _by_successive_orthogonolisation(self, ):
+        pass
+
+    def _by_qr_decomposition(self, ):
+        pass
+
+    def _by_svd(self, ):
+        pass
+
+    def _by_cholesky_decomposition(self, ):
+        pass
+
+    def _ridge(self, ):
+        pass
+
+    def _lasso(self, ):
+        pass
+
+
             
