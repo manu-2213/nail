@@ -55,8 +55,8 @@ class LinearRegression:
         return self.B
 
     def _by_successive_orthogonolisation(self, return_orthogonalised: bool, efficiently: bool):
-        Z = self.X[:, 0].copy()
-        Z = np.expand_dims(Z, axis=-1)
+        Z = np.zeros_like(self.X)
+        Z[:, 0] = self.X[:, 0].copy()
         R = np.identity(self.B.shape[0])
 
         for j in range(1, self.X.shape[1]):
@@ -64,12 +64,12 @@ class LinearRegression:
             x = self.X[:, j]
             
             for k in range(j):
-                a = np.dot(Z[:, k], x) / np.dot(Z[:, k], Z[:, k])
+                a = np.dot(Z[:, k], x) / np.dot(Z[:, k], Z[:, k]) # Can compute this once
                 R[k, j] = a
                 z -= a * Z[:, k]
-            z = np.expand_dims(z, axis=-1)
-            Z = np.concatenate([Z, z], axis=-1)
 
+            Z[:, j] = z
+            
         numerator = (Z.T @ self.y) 
         denominator = np.diagonal(Z.T @ Z)[:, None]
         self.Z_betas = numerator / denominator
