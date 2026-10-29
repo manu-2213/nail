@@ -37,18 +37,24 @@ class LinearRegression:
     def _y_hat(self, ):
         return self.X @ self.B
 
-    def solve(self, method: str = "naive"):
+    def solve(self, 
+              method: str = "naive",
+              return_orthogonalised: bool = False,
+              efficiently: bool = False,):
         if method == "naive":
-            return self._naive_solving()
+            return self._by_naive_solving()
 
         if method == "gram-schmidt":
-            return self._by_successive_orthogonolisation()
+            return self._by_successive_orthogonolisation(
+                return_orthogonalised=return_orthogonalised,
+                efficiently=efficiently
+                )
 
     def _by_naive_solving(self,):
         self.B = np.linalg.inv(self.X.T @ self.X) @ self.X.T @ self.y
         return self.B
 
-    def _by_successive_orthogonolisation(self, return_orthogonalised: bool = False):
+    def _by_successive_orthogonolisation(self, return_orthogonalised: bool, efficiently: bool):
         Z = self.X[:, 0].copy()
         Z = np.expand_dims(Z, axis=-1)
         R = np.identity(self.B.shape[0])
@@ -73,8 +79,31 @@ class LinearRegression:
             return self.Z_betas, self.Z
 
         else:
-            self.B = np.linalg.inv(R) @ self.Z_betas
-            return self.B
+
+            if efficiently: # Just for testing purposes of the quick inverse
+                beta_vector = np.ones_like(self.B)
+                beta_vector[-1] = self.Z_betas[-1, 0]
+
+                for j in range(beta_vector.shape[0]-2, 0, -1):
+                    beta_j = self.Z_betas[j].copy()
+
+                    for k in range(j+1, beta_vector.shape[0]):
+                        beta_j -= beta_vector[k] * R[j, k]
+
+                    beta_vector[j] = beta_j
+
+                dot_product = np.dot(
+                    beta_vector[1:].reshape(beta_vector.shape[0] - 1), np.mean(self.X, axis=0)[1:]
+                    )
+
+                beta_vector[0] = np.mean(self.y, axis=0) - dot_product
+
+                self.B = beta_vector
+                return self.B
+
+            else:
+                self.B = np.linalg.inv(R) @ self.Z_betas
+                return self.B
 
     def _by_qr_decomposition(self, ):
         pass
