@@ -44,11 +44,13 @@ class LinearRegression:
         if method == "naive":
             return self._by_naive_solving()
 
-        if method == "gram-schmidt":
+        elif method == "gram-schmidt":
             return self._by_successive_orthogonolisation(
                 return_orthogonalised=return_orthogonalised,
                 efficiently=efficiently
                 )
+        elif method == "qr":
+            return self._by_qr_decomposition()
 
     def _by_naive_solving(self,):
         self.B = np.linalg.inv(self.X.T @ self.X) @ self.X.T @ self.y
@@ -105,7 +107,9 @@ class LinearRegression:
                 return self.B
 
     def _by_qr_decomposition(self, ):
-        pass
+        Q, R = np.linalg.qr(self.X)
+        self.B = np.linalg.solve(R, Q.T @ self.y)
+        return self.B
 
     def _by_svd(self, ):
         pass
